@@ -1,7 +1,10 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
+import currencyExchange from "../features/currencyExchange/currencyExchangeSlice";
 
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    currencyExchange,
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;
