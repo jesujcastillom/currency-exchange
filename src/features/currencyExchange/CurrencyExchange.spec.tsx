@@ -20,7 +20,9 @@ it("should load all the options", async () => {
 
   await waitFor(() => {
     // Options loaded
-    expect(within(sourcePicker).queryAllByRole("option")).not.toHaveLength(0);
+    expect(
+      within(sourcePicker).queryByRole("option", { name: /eur/i })
+    ).toBeInTheDocument();
   });
 
   const sourcePickerOptions = within(sourcePicker).getAllByRole("option");
@@ -40,6 +42,35 @@ it("should load all the options", async () => {
   expect(targetPicker).toHaveValue(targetOption);
 });
 
-it.todo(
-  "should result the same as amount if user picks the same currency for source and target"
+it.each`
+  amount     | source   | target   | result
+  ${"12345"} | ${"HKD"} | ${"EUR"} | ${12345 / 9.4939}
+  ${"12345"} | ${"EUR"} | ${"EUR"} | ${12345}
+  ${"12345"} | ${"CAD"} | ${"USD"} | ${(12345 * 1.2246) / 1.5546}
+`(
+  "should calculate $result for $amount $source -> $target having EUR as base",
+  async ({ amount, source, target, result }) => {
+    const { getByRole, getByText } = render(
+      <Provider store={store}>
+        <CurrencyExchange />
+      </Provider>
+    );
+
+    // Both select elements are in the DOM
+    const sourcePicker = getByRole("combobox", { name: /from/i });
+    const targetPicker = getByRole("combobox", { name: /to/i });
+
+    await waitFor(() => {
+      // Options loaded
+      expect(
+        within(sourcePicker).queryByRole("option", { name: /eur/i })
+      ).toBeInTheDocument();
+    });
+
+    user.selectOptions(sourcePicker, source);
+    user.selectOptions(targetPicker, target);
+    user.type(getByRole("spinbutton"), amount);
+
+    expect(getByText(result)).toBeInTheDocument();
+  }
 );
