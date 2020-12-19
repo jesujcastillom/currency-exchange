@@ -1,4 +1,5 @@
 import React from "react";
+import { CurrencyExchangeInput } from "./CurrencyExchangeInput";
 import {
   selectSourceCurrency,
   selectTargetCurrency,
@@ -21,6 +22,7 @@ export const CurrencyExchange = () => {
   const options = useCurrencyOptions();
   return (
     <div>
+      <CurrencyExchangeInput />
       <label>
         From
         <CurrencySelect

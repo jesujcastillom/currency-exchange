@@ -9,6 +9,7 @@ interface CurrencyExchangeState {
   source: CurrencyState;
   target: CurrencyState;
   options: string[];
+  amount?: number;
 }
 
 const initialState: CurrencyExchangeState = {
@@ -43,10 +44,20 @@ export const currencyExchangeSlice = createSlice({
     ) => {
       state.options = action.payload;
     },
+    setAmount: (
+      state: CurrencyExchangeState,
+      { payload: value }: PayloadAction<number>
+    ) => {
+      state.amount = value;
+    },
   },
 });
 
-export const { setSource, setTarget } = currencyExchangeSlice.actions;
+export const {
+  setSource,
+  setTarget,
+  setAmount,
+} = currencyExchangeSlice.actions;
 
 //#region selectors
 
