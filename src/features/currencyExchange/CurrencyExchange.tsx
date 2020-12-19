@@ -1,8 +1,7 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { CurrencyExchangeAmountOutput } from "./CurrencyExchangeAmountOutput";
 import { CurrencyExchangeInput } from "./CurrencyExchangeInput";
 import {
-  selectAmount,
   selectSourceCurrency,
   selectTargetCurrency,
   setSource,
@@ -22,7 +21,6 @@ export const CurrencyExchange = () => {
     setTarget
   );
   const options = useCurrencyOptions();
-  const result = useSelector(selectAmount(target));
   return (
     <div>
       <CurrencyExchangeInput />
@@ -34,7 +32,7 @@ export const CurrencyExchange = () => {
           options={options}
         />
       </label>
-      <span>{result}</span>
+      <CurrencyExchangeAmountOutput currency={target} />
       <label>
         To
         <CurrencySelect
