@@ -22,7 +22,7 @@ export const CurrencyExchange = () => {
     setTarget
   );
   const options = useCurrencyOptions();
-  const result = useSelector(selectAmount);
+  const result = useSelector(selectAmount(target));
   return (
     <div>
       <CurrencyExchangeInput />

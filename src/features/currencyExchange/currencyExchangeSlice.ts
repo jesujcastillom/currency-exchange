@@ -83,9 +83,10 @@ export const selectCurrencies = (state: RootState) => [
   ...Object.keys(state.currencyExchange.rateInformation.rates),
 ];
 
-export const selectAmount = ({ currencyExchange }: RootState) => {
+export const selectAmount = (target: string) => ({
+  currencyExchange,
+}: RootState) => {
   const { currency: source } = currencyExchange.source;
-  const { currency: target } = currencyExchange.target;
   const { amount } = currencyExchange;
 
   if (!source || !target || typeof amount !== "number") return;
