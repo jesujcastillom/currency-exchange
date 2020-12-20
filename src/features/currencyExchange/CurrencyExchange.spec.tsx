@@ -49,10 +49,10 @@ it("should load all the options", async () => {
 // TODO: Add empty amount/source/target case
 it.each`
   amount     | source   | target   | result
-  ${"12345"} | ${"HKD"} | ${"EUR"} | ${(12345 / 9.4939).toFixed(4)}
-  ${"12345"} | ${"EUR"} | ${"EUR"} | ${(12345).toFixed(4)}
-  ${"12345"} | ${"CAD"} | ${"USD"} | ${((12345 * 1.2246) / 1.5546).toFixed(4)}
-  ${"12345"} | ${"EUR"} | ${"USD"} | ${(12345 * 1.2246).toFixed(4)}
+  ${"12345"} | ${"HKD"} | ${"EUR"} | ${12345 / 9.4939}
+  ${"12345"} | ${"EUR"} | ${"EUR"} | ${12345}
+  ${"12345"} | ${"CAD"} | ${"USD"} | ${(12345 * 1.2246) / 1.5546}
+  ${"12345"} | ${"EUR"} | ${"USD"} | ${12345 * 1.2246}
 `(
   "should calculate $result for $amount $source -> $target having EUR as base",
   async ({ amount, source, target, result }) => {
@@ -81,7 +81,11 @@ it.each`
     user.selectOptions(targetPicker, target);
     user.type(getByRole("spinbutton"), amount);
 
-    expect(getByText(result)).toBeInTheDocument();
+    expect(
+      getByText((text) => {
+        return Number(text) === Number(result.toFixed(4));
+      })
+    ).toBeInTheDocument();
   }
 );
 
@@ -109,8 +113,12 @@ it("should convert to multiple rates", async () => {
   user.selectOptions(secondSelect, "CAD");
   user.type(getByRole("spinbutton"), "12345");
 
-  expect(getByText((12345 * 1.2246).toFixed(4))).toBeInTheDocument();
-  expect(getByText((12345 * 1.5546).toFixed(4))).toBeInTheDocument();
+  expect(
+    getByText(String(Number((12345 * 1.2246).toFixed(4))))
+  ).toBeInTheDocument();
+  expect(
+    getByText(String(Number((12345 * 1.5546).toFixed(4))))
+  ).toBeInTheDocument();
 });
 it("should be able to remove target currency row if there's more than one target", async () => {
   const { getByRole, queryByRole, getAllByRole, queryByDisplayValue } = render(
