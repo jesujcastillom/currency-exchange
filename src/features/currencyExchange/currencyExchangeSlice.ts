@@ -103,12 +103,11 @@ export const selectTargetCurrency = (target: string) => (
   state: Pick<RootState, "currencyExchange">
 ) => state.currencyExchange.targets[target];
 
-export const selectCurrencies = (
-  state: Pick<RootState, "currencyExchange">
-) => [
-  state.currencyExchange.rateInformation.base,
-  ...Object.keys(state.currencyExchange.rateInformation.rates),
-];
+export const selectCurrencies = (state: Pick<RootState, "currencyExchange">) =>
+  [
+    state.currencyExchange.rateInformation.base,
+    ...Object.keys(state.currencyExchange.rateInformation.rates),
+  ].sort();
 
 export const selectTargets = (state: Pick<RootState, "currencyExchange">) =>
   Object.keys(state.currencyExchange.targets);
