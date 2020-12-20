@@ -81,7 +81,11 @@ it.each`
     user.selectOptions(targetPicker, target);
     user.type(getByRole("spinbutton"), amount);
 
-    expect(getByText(result)).toBeInTheDocument();
+    expect(
+      getByText((text) => {
+        return Number(text) === Number(result.toFixed(4));
+      })
+    ).toBeInTheDocument();
   }
 );
 
@@ -109,8 +113,12 @@ it("should convert to multiple rates", async () => {
   user.selectOptions(secondSelect, "CAD");
   user.type(getByRole("spinbutton"), "12345");
 
-  expect(getByText(String(12345 * 1.2246))).toBeInTheDocument();
-  expect(getByText(String(12345 * 1.5546))).toBeInTheDocument();
+  expect(
+    getByText(String(Number((12345 * 1.2246).toFixed(4))))
+  ).toBeInTheDocument();
+  expect(
+    getByText(String(Number((12345 * 1.5546).toFixed(4))))
+  ).toBeInTheDocument();
 });
 it("should be able to remove target currency row if there's more than one target", async () => {
   const { getByRole, queryByRole, getAllByRole, queryByDisplayValue } = render(
