@@ -1,0 +1,27 @@
+.container {
+  margin: 0.5rem 0;
+  background-color: white;
+  padding: 1rem 2rem;
+  border-radius: 0.25rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.amount {
+  margin-right: auto;
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.remove-btn {
+  background-color: transparent;
+  padding: 0.5rem 1rem;
+  border: none;
+  margin-left: 0.5rem;
+  margin-right: -1rem;
+  cursor: pointer;
+  @media (min-width: 768px) {
+    margin-left: 1rem;
+  }
+}

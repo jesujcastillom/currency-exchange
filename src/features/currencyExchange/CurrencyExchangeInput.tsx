@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { setAmount } from "./currencyExchangeSlice";
+import styles from "./CurrencyExchangeInput.module.scss";
 
 export const CurrencyExchangeInput = () => {
   const [value, setValue] = useState("");
@@ -11,6 +12,7 @@ export const CurrencyExchangeInput = () => {
   }, [value, dispatch]);
   return (
     <input
+      className={styles.input}
       type="number"
       value={value}
       onChange={({ target }) => {

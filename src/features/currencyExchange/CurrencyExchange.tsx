@@ -11,6 +11,7 @@ import {
 import { CurrencySelect } from "./CurrencySelect";
 import { useCurrencyOptions } from "./hooks/useCurrencyOptions";
 import { useCurrencySelection } from "./hooks/useCurrencySelection";
+import styles from "./CurrencyExchange.module.scss";
 
 export const CurrencyExchange = () => {
   const dispatch = useDispatch();
@@ -21,25 +22,28 @@ export const CurrencyExchange = () => {
   const options = useCurrencyOptions();
   const targets = useSelector(selectTargets);
   return (
-    <div>
-      <CurrencyExchangeInput />
-      <label>
-        From
+    <div className={styles.container}>
+      <div className={styles.amount_container}>
+        <CurrencyExchangeInput />
         <CurrencySelect
           value={source}
           onChange={setSourceCurrency}
           options={options}
+          label="From"
         />
-      </label>
-      {targets.map((id) => (
-        <CurrencyExchangeAmountOutput
-          key={id}
-          options={options}
-          id={id}
-          isRemovable={targets.length > 1}
-        />
-      ))}
+      </div>
+      <div>
+        {targets.map((id) => (
+          <CurrencyExchangeAmountOutput
+            key={id}
+            options={options}
+            id={id}
+            isRemovable={targets.length > 1}
+          />
+        ))}
+      </div>
       <button
+        className={styles["btn-add-target"]}
         onClick={() => {
           dispatch(addTarget());
         }}

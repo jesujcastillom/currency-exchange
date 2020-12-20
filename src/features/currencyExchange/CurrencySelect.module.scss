@@ -1,0 +1,9 @@
+.select {
+  padding: 0.5rem 1rem;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  &:hover {
+    border-bottom-color: rgb(252, 184, 19);
+  }
+}
