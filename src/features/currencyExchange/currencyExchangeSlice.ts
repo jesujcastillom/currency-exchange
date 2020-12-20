@@ -59,14 +59,11 @@ const currencyExchangeSlice = createSlice({
     ) => {
       state.rateInformation = payload;
       state.source.currency = payload.base;
-      state.targets = {
-        [uuid()]: payload.base,
-      };
     },
     addTarget: (state: CurrencyExchangeState) => {
       const usedCurrencies = new Set([
         state.source.currency,
-        ...Object.keys(state.targets),
+        ...Object.values(state.targets),
       ]);
       const nextUnusedCurrency = selectCurrencies({
         currencyExchange: state,
@@ -140,6 +137,7 @@ export const loadOptions = (): AppThunk => (dispatch) => {
       dispatch(
         currencyExchangeSlice.actions.setRateInformation(rateInformation)
       );
+      dispatch(addTarget());
     });
 };
 //#endregion
