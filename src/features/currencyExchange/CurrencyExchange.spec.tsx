@@ -3,13 +3,13 @@ import user from "@testing-library/user-event";
 import React from "react";
 import { Provider } from "react-redux";
 
-import { store } from "../../app/store";
+import { storeBuilder } from "../../app/store";
 
 import { CurrencyExchange } from "./CurrencyExchange";
 
 it("should load all the options", async () => {
   const { getByRole } = render(
-    <Provider store={store}>
+    <Provider store={storeBuilder()}>
       <CurrencyExchange />
     </Provider>
   );
@@ -51,7 +51,7 @@ it.each`
   "should calculate $result for $amount $source -> $target having EUR as base",
   async ({ amount, source, target, result }) => {
     const { getByRole, getByText } = render(
-      <Provider store={store}>
+      <Provider store={storeBuilder()}>
         <CurrencyExchange />
       </Provider>
     );
