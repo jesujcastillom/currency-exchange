@@ -29,7 +29,7 @@ export const CurrencyExchangeAmountOutput = ({
   const amount = useSelector(selectAmount(target));
   return (
     <div className={styles.container}>
-      <span className={styles.amount}>{amount}</span>
+      <span className={styles.amount}>{amount?.toFixed(4)}</span>
       <CurrencySelect
         value={target}
         onChange={(newTarget) => {
