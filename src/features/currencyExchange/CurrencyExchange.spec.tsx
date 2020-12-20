@@ -42,11 +42,13 @@ it("should load all the options", async () => {
   expect(targetPicker).toHaveValue(targetOption);
 });
 
+// TODO: Add empty amount/source/target case
 it.each`
   amount     | source   | target   | result
   ${"12345"} | ${"HKD"} | ${"EUR"} | ${12345 / 9.4939}
   ${"12345"} | ${"EUR"} | ${"EUR"} | ${12345}
   ${"12345"} | ${"CAD"} | ${"USD"} | ${(12345 * 1.2246) / 1.5546}
+  ${"12345"} | ${"EUR"} | ${"USD"} | ${12345 * 1.2246}
 `(
   "should calculate $result for $amount $source -> $target having EUR as base",
   async ({ amount, source, target, result }) => {
