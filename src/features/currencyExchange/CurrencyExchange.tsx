@@ -1,26 +1,25 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { CurrencyExchangeAmountOutput } from "./CurrencyExchangeAmountOutput";
 import { CurrencyExchangeInput } from "./CurrencyExchangeInput";
 import {
+  addTarget,
   selectSourceCurrency,
-  selectTargetCurrency,
+  selectTargets,
   setSource,
-  setTarget,
 } from "./currencyExchangeSlice";
 import { CurrencySelect } from "./CurrencySelect";
 import { useCurrencyOptions } from "./hooks/useCurrencyOptions";
 import { useCurrencySelection } from "./hooks/useCurrencySelection";
 
 export const CurrencyExchange = () => {
+  const dispatch = useDispatch();
   const [source, setSourceCurrency] = useCurrencySelection(
     selectSourceCurrency,
     setSource
   );
-  const [target, setTargetCurrency] = useCurrencySelection(
-    selectTargetCurrency,
-    setTarget
-  );
   const options = useCurrencyOptions();
+  const targets = useSelector(selectTargets);
   return (
     <div>
       <CurrencyExchangeInput />
@@ -32,15 +31,22 @@ export const CurrencyExchange = () => {
           options={options}
         />
       </label>
-      <CurrencyExchangeAmountOutput currency={target} />
-      <label>
-        To
-        <CurrencySelect
-          value={target}
-          onChange={setTargetCurrency}
+      {targets.map((id) => (
+        <CurrencyExchangeAmountOutput
+          key={id}
           options={options}
+          id={id}
+          isRemovable={targets.length > 1}
         />
-      </label>
+      ))}
+      <button
+        onClick={() => {
+          dispatch(addTarget());
+        }}
+        disabled={targets.length === options.length}
+      >
+        Add conversion rate
+      </button>
     </div>
   );
 };

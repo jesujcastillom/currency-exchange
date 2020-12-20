@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { v4 as uuid } from "uuid";
 import { AppThunk, RootState } from "../../app/store";
 
 interface CurrencyState {
-  currency: string;
+  [key: string]: string;
 }
 
 interface RateInfoState {
@@ -13,7 +14,7 @@ interface RateInfoState {
 
 interface CurrencyExchangeState {
   source: CurrencyState;
-  target: CurrencyState;
+  targets: CurrencyState;
   amount?: number;
   rateInformation: RateInfoState;
 }
@@ -22,9 +23,7 @@ const initialState: CurrencyExchangeState = {
   source: {
     currency: "",
   },
-  target: {
-    currency: "",
-  },
+  targets: {},
   rateInformation: {
     base: "",
     date: "",
@@ -44,9 +43,9 @@ const currencyExchangeSlice = createSlice({
     },
     setTarget: (
       state: CurrencyExchangeState,
-      action: PayloadAction<string>
+      { payload }: PayloadAction<{ id: string; value: string }>
     ) => {
-      state.target.currency = action.payload;
+      state.targets[payload.id] = payload.value;
     },
     setAmount: (
       state: CurrencyExchangeState,
@@ -59,29 +58,60 @@ const currencyExchangeSlice = createSlice({
       { payload }: PayloadAction<RateInfoState>
     ) => {
       state.rateInformation = payload;
-      state.source.currency = state.target.currency = payload.base;
+      state.source.currency = payload.base;
+      state.targets = {
+        [uuid()]: payload.base,
+      };
+    },
+    addTarget: (state: CurrencyExchangeState) => {
+      const usedCurrencies = new Set([
+        state.source.currency,
+        ...Object.keys(state.targets),
+      ]);
+      const nextUnusedCurrency = selectCurrencies({
+        currencyExchange: state,
+      }).find((currency) => !usedCurrencies.has(currency));
+      state.targets[uuid()] = nextUnusedCurrency ?? state.rateInformation.base;
+    },
+    removeTarget: (
+      state: CurrencyExchangeState,
+      { payload }: PayloadAction<string>
+    ) => {
+      const { [payload]: _, ...targetsWithoutPayloadProp } = state.targets;
+      state.targets = targetsWithoutPayloadProp;
     },
   },
 });
 
+//#region actions
 export const {
   setSource,
   setTarget,
   setAmount,
+  addTarget,
+  removeTarget,
 } = currencyExchangeSlice.actions;
+//#endregion
 
 //#region selectors
 
-export const selectSourceCurrency = (state: RootState) =>
-  state.currencyExchange.source.currency;
+export const selectSourceCurrency = (
+  state: Pick<RootState, "currencyExchange">
+) => state.currencyExchange.source.currency;
 
-export const selectTargetCurrency = (state: RootState) =>
-  state.currencyExchange.target.currency;
+export const selectTargetCurrency = (target: string) => (
+  state: Pick<RootState, "currencyExchange">
+) => state.currencyExchange.targets[target];
 
-export const selectCurrencies = (state: RootState) => [
+export const selectCurrencies = (
+  state: Pick<RootState, "currencyExchange">
+) => [
   state.currencyExchange.rateInformation.base,
   ...Object.keys(state.currencyExchange.rateInformation.rates),
 ];
+
+export const selectTargets = (state: Pick<RootState, "currencyExchange">) =>
+  Object.keys(state.currencyExchange.targets);
 
 export const selectAmount = (target: string) => ({
   currencyExchange,
@@ -94,10 +124,11 @@ export const selectAmount = (target: string) => ({
   if (source === target) return amount;
 
   const { base, rates } = currencyExchange.rateInformation;
-  if (target === base) return amount / rates[source];
 
-  const rate = base === source ? rates[target] : rates[target] / rates[source];
-  return amount * rate;
+  if (target === base) return amount / rates[source];
+  if (base === source) return amount * rates[target];
+
+  return (amount * rates[target]) / rates[source];
 };
 
 //#endregion
