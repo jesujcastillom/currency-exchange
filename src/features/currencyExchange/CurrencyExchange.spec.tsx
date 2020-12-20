@@ -8,11 +8,15 @@ import { storeBuilder } from "../../app/store";
 import { CurrencyExchange } from "./CurrencyExchange";
 
 it("should load all the options", async () => {
-  const { getByRole } = render(
+  const { getByRole, queryByRole } = render(
     <Provider store={storeBuilder()}>
       <CurrencyExchange />
     </Provider>
   );
+
+  await waitFor(() => {
+    expect(queryByRole("combobox", { name: /to/i })).toBeInTheDocument();
+  });
 
   // Both select elements are in the DOM
   const sourcePicker = getByRole("combobox", { name: /from/i });
@@ -52,11 +56,15 @@ it.each`
 `(
   "should calculate $result for $amount $source -> $target having EUR as base",
   async ({ amount, source, target, result }) => {
-    const { getByRole, getByText } = render(
+    const { getByRole, getByText, queryByRole } = render(
       <Provider store={storeBuilder()}>
         <CurrencyExchange />
       </Provider>
     );
+
+    await waitFor(() => {
+      expect(queryByRole("combobox", { name: /to/i })).toBeInTheDocument();
+    });
 
     // Both select elements are in the DOM
     const sourcePicker = getByRole("combobox", { name: /from/i });
@@ -76,3 +84,86 @@ it.each`
     expect(getByText(result)).toBeInTheDocument();
   }
 );
+
+it("should convert to multiple rates", async () => {
+  const { getByRole, getByText, queryByRole, getAllByRole } = render(
+    <Provider store={storeBuilder()}>
+      <CurrencyExchange />
+    </Provider>
+  );
+
+  await waitFor(() => {
+    expect(queryByRole("combobox", { name: /to/i })).toBeInTheDocument();
+  });
+
+  const addCurrencyButton = getByRole("button", { name: /add conversion/i });
+  user.click(addCurrencyButton);
+
+  const targetSelects = getAllByRole("combobox", { name: /to/i });
+  // Target currency added
+  expect(targetSelects).toHaveLength(2);
+  expect(getAllByRole("button", { name: /remove/i })).toHaveLength(2);
+
+  const [firstSelect, secondSelect] = targetSelects;
+  user.selectOptions(firstSelect, "USD");
+  user.selectOptions(secondSelect, "CAD");
+  user.type(getByRole("spinbutton"), "12345");
+
+  expect(getByText(String(12345 * 1.2246))).toBeInTheDocument();
+  expect(getByText(String(12345 * 1.5546))).toBeInTheDocument();
+});
+it("should be able to remove target currency row if there's more than one target", async () => {
+  const { getByRole, queryByRole, getAllByRole, queryByDisplayValue } = render(
+    <Provider store={storeBuilder()}>
+      <CurrencyExchange />
+    </Provider>
+  );
+
+  await waitFor(() => {
+    expect(queryByRole("combobox", { name: /to/i })).toBeInTheDocument();
+  });
+
+  user.selectOptions(getByRole("combobox", { name: /to/i }), "DKK");
+  expect(queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+
+  const addCurrencyButton = getByRole("button", { name: /add conversion/i });
+  user.click(addCurrencyButton);
+
+  const [firstCurrencyRemoveButton] = getAllByRole("button", {
+    name: /remove/i,
+  });
+  user.click(firstCurrencyRemoveButton);
+
+  expect(queryByDisplayValue("DKK")).not.toBeInTheDocument();
+
+  // This should be the one just added, and this makes sure there's only one
+  expect(getByRole("combobox", { name: /to/i })).toBeInTheDocument();
+  // The original second select remove button should have been removed from the
+  // DOM since it's the only select available now
+  expect(queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+});
+
+it("should not be able to remove if only one target currency is present", async () => {
+  const { getByRole, queryByRole, getAllByRole } = render(
+    <Provider store={storeBuilder()}>
+      <CurrencyExchange />
+    </Provider>
+  );
+
+  await waitFor(() => {
+    expect(queryByRole("combobox", { name: /to/i })).toBeInTheDocument();
+  });
+
+  user.selectOptions(getByRole("combobox", { name: /to/i }), "DKK");
+  expect(queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+
+  const addCurrencyButton = getByRole("button", { name: /add conversion/i });
+  user.click(addCurrencyButton);
+
+  const removeButton = getAllByRole("button", {
+    name: /remove/i,
+  })[Math.round(Math.random())];
+
+  user.click(removeButton);
+  expect(queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+});
