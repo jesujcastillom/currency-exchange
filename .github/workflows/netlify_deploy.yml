@@ -3,11 +3,14 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    types: [opened, synchronize]
 jobs:
   build:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
+      - run: npm install
       - run: npm run build
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.1
